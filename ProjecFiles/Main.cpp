@@ -11,7 +11,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
 		return -1;
 	}
 	MSG MainMessage = { 0 };
-	CreateWindow(L"MainWndClass", L"Explorer", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 10, 10, 1024, 800, NULL, NULL, NULL, NULL);
+	CreateWindow(L"MainWndClass", L"Explorer", WS_BORDER | WS_SYSMENU | WS_VISIBLE | WS_OVERLAPPED, 10, 10, 850, 700, NULL, NULL, NULL, NULL);
 	while (GetMessage(&MainMessage, NULL, NULL, NULL)) {
 		TranslateMessage(&MainMessage);
 		DispatchMessage(&MainMessage);
@@ -68,11 +68,11 @@ LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		}
 		switch (wp) {
 		case OnHelpClicked:
-			MessageBoxA(hWnd,  "Contact: https://t.me/moroz_zov", "Help", MB_OK);
+			MessageBoxA(hWnd, "Contact: https://t.me/moroz_zov", "Help", MB_OK);
 			break;
 
 		case OnAboutClicked:
-			MessageBoxA(hWnd,  "I'm a file explorer)", "About", MB_OK);
+			MessageBoxA(hWnd, "I'm a file explorer)", "About", MB_OK);
 			break;
 
 		case OnCreateFileClicked:
@@ -167,8 +167,6 @@ void MainWndAddMenus(HWND hWnd) {
 	HMENU Root1Menu = CreateMenu();
 	HMENU Sub1Menu = CreateMenu();
 
-	AppendMenu(SubMenu, MF_STRING, OnCreateFileClicked, L"Create");
-
 	AppendMenu(Sub1Menu, MF_STRING, OnCClicked, L"Open C: directory");
 	AppendMenu(Sub1Menu, MF_STRING, OnDClicked, L"Open D: directory");
 	AppendMenu(Sub1Menu, MF_SEPARATOR, NULL, NULL);
@@ -178,13 +176,10 @@ void MainWndAddMenus(HWND hWnd) {
 	AppendMenu(Sub1Menu, MF_STRING, OnExitClicked, L"Exit");
 	AppendMenu(RootMenu, MF_POPUP, (UINT_PTR)Sub1Menu, L"Directory");
 
-
 	AppendMenu(SubMenu, MF_STRING, OnCreateFileClicked, L"Create new file");
 	AppendMenu(SubMenu, MF_STRING, OnDeleteFileClicked, L"Delete selected file");
 
 	AppendMenu(RootMenu, MF_POPUP, (UINT_PTR)SubMenu, L"File");
-
-
 
 	AppendMenu(RootMenu, MF_STRING, OnHelpClicked, L"Help");
 	AppendMenu(RootMenu, MF_STRING, OnAboutClicked, L"About");
@@ -221,7 +216,7 @@ void GetFiles(std::wstring path) {
 	do {
 		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 			SendMessage(hListboxControl, LB_ADDSTRING, 0, (LPARAM)(findFileData.cFileName));
-			SendMessage(hListbox1Control, LB_ADDSTRING, 0, (LPARAM)L"D");
+			SendMessage(hListbox1Control, LB_ADDSTRING, 0, (LPARAM)L"-");
 		}
 		else {
 			SendMessage(hListboxControl, LB_ADDSTRING, 0, (LPARAM)(findFileData.cFileName));
@@ -239,7 +234,7 @@ void CreateDir(HWND hWnd) {
 
 	CreateDirectory(name.c_str(), NULL);
 
-	MessageBox(hWnd, L"Directory deleted", L"Done", MB_ICONINFORMATION);
+	MessageBox(hWnd, L"Directory created", L"Done", MB_ICONINFORMATION);
 }
 
 void DeleteDir(HWND hWnd) {
@@ -255,31 +250,29 @@ int CreateFile(HWND hWnd) {
 	std::wstring name = CurrentDir + FileName;
 
 	HANDLE hFile = CreateFile(
-		name.c_str(),			// Filename
-		GENERIC_WRITE,          // Desired access
-		FILE_SHARE_READ,        // Share mode
-		NULL,                   // Security attributes
-		CREATE_NEW,             // Creates a new file, only if it doesn't already exist
-		FILE_ATTRIBUTE_NORMAL,  // Flags and attributes
-		NULL);                  // Template file handle
+		name.c_str(),
+		GENERIC_WRITE,
+		FILE_SHARE_READ,
+		NULL,
+		CREATE_NEW,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
 
 	if (hFile == INVALID_HANDLE_VALUE) {
-		// Failed to open/create file
 		return 2;
 	}
 
-	std::string strText = "Hello World!"; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+	std::string strText = "Hello World!";
 
 	DWORD bytesWritten;
 
 	WriteFile(
-		hFile,            // Handle to the file
-		strText.c_str(),  // Buffer to write
-		strText.size(),   // Buffer size
-		&bytesWritten,    // Bytes written
-		nullptr);         // Overlapped
+		hFile,
+		strText.c_str(),
+		strText.size(),
+		&bytesWritten,
+		nullptr);
 
-	 // Close the handle once we don't need it.
 	CloseHandle(hFile);
 
 	MessageBox(hWnd, L"File created", L"Done", MB_ICONINFORMATION);
@@ -298,7 +291,7 @@ void GetFileName() {
 	int length = SendMessageW(hEditControl, WM_GETTEXTLENGTH, 0, 0);
 
 	if (length > 0) {
-		std::vector<WCHAR> buf(length + 1 /* NUL */);
+		std::vector<WCHAR> buf(length + 1);
 		SendMessageW(hEditControl,
 			WM_GETTEXT,
 			buf.size(),
@@ -309,7 +302,7 @@ void GetFileName() {
 
 void GetCur(int curIndex, int length) {
 	if (length > 0) {
-		std::vector<WCHAR> buf(length + 1 /* NUL */);
+		std::vector<WCHAR> buf(length + 1);
 		SendMessageW(hListboxControl,
 			LB_GETTEXT,
 			(WPARAM)curIndex,
