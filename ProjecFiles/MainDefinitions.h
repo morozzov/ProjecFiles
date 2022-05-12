@@ -26,6 +26,7 @@ HWND hEditControl;
 HWND hStaticDirControl;
 HWND hListboxControl;
 HWND hListbox1Control;
+HWND hButton;
 
 LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
 WNDCLASS NewWindowClass(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure);
@@ -33,6 +34,7 @@ WNDCLASS NewWindowClass(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON I
 void MainWndAddMenus(HWND hWnd);
 void MainWndAddWidgets(HWND hWnd);
 void GetFiles(std::wstring path);
+void Resize(HWND hWnd);
 
 int CreateFile(HWND hWnd);
 void DeleteFile(HWND hWnd);

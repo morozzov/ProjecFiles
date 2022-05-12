@@ -11,7 +11,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
 		return -1;
 	}
 	MSG MainMessage = { 0 };
-	CreateWindow(L"MainWndClass", L"Explorer", WS_BORDER | WS_SYSMENU | WS_VISIBLE | WS_OVERLAPPED, 10, 10, 850, 700, NULL, NULL, NULL, NULL);
+	CreateWindow(L"MainWndClass", L"Explorer", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 10, 10, 850, 700, NULL, NULL, NULL, NULL);
 	while (GetMessage(&MainMessage, NULL, NULL, NULL)) {
 		TranslateMessage(&MainMessage);
 		DispatchMessage(&MainMessage);
@@ -45,23 +45,23 @@ LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 						ItemSize = (int)SendMessage(hListboxControl, LB_GETTEXTLEN, (WPARAM)ItemIndex, 0);
 						GetCur(ItemIndex, ItemSize);
 
-						if (IsCurDir) 	{
+						if (IsCurDir) {
 
-						if (wcscmp(Cur.c_str(), L".") == 0) {
-							CurrentPath = CurrentDir.substr(0, 4);
-						}
-						else if (wcscmp(Cur.c_str(), L"..") == 0) {
-							CurrentPath = CurrentDir;
-							CurrentPath.erase(CurrentPath.size() - 2, 2);
-							CurrentPath.erase(CurrentPath.find_last_of(L"/") + 1, CurrentPath.size() - CurrentPath.find_last_of(L"/") - 1);
-						}
-						else {
-							CurrentPath = CurrentDir.c_str();
-							CurrentPath += Cur.c_str();
-							CurrentPath += L"//";
-						}
+							if (wcscmp(Cur.c_str(), L".") == 0) {
+								CurrentPath = CurrentDir.substr(0, 4);
+							}
+							else if (wcscmp(Cur.c_str(), L"..") == 0) {
+								CurrentPath = CurrentDir;
+								CurrentPath.erase(CurrentPath.size() - 2, 2);
+								CurrentPath.erase(CurrentPath.find_last_of(L"/") + 1, CurrentPath.size() - CurrentPath.find_last_of(L"/") - 1);
+							}
+							else {
+								CurrentPath = CurrentDir.c_str();
+								CurrentPath += Cur.c_str();
+								CurrentPath += L"//";
+							}
 
-						GetFiles(CurrentPath);
+							GetFiles(CurrentPath);
 						}
 
 					}
@@ -160,6 +160,12 @@ LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		PostQuitMessage(0);
 		break;
 
+	case WM_SIZE:
+	{
+		Resize(hWnd);
+		break;
+	}
+
 	default:		return DefWindowProc(hWnd, msg, wp, lp);
 	}
 }
@@ -198,7 +204,7 @@ void MainWndAddWidgets(HWND hWnd) {
 
 	hStaticDirControl = CreateWindowA("static", "fff", WS_VISIBLE | WS_CHILD, 0, 0, rcClient.right - 80, 20, hWnd, NULL, NULL, NULL);
 
-	CreateWindowA("button", "Refresh", WS_VISIBLE | WS_CHILD | ES_CENTER, rcClient.right - 80, 0, 80, 20, hWnd, (HMENU)OnButtonReadClicked, NULL, NULL);
+	hButton = CreateWindowA("button", "Refresh", WS_VISIBLE | WS_CHILD | ES_CENTER, rcClient.right - 80, 0, 80, 20, hWnd, (HMENU)OnButtonReadClicked, NULL, NULL);
 
 	hListboxControl = CreateWindowA("listbox", "Edit text", WS_VISIBLE | LBS_NOTIFY | WS_CHILD | WS_VSCROLL, 0, 20, rcClient.right, rcClient.bottom - 50, hWnd, (HMENU)OnListboxClicked, NULL, NULL);
 
@@ -320,9 +326,20 @@ void GetCur(int curIndex, int length) {
 			Cur = Cur.erase(0, 5);
 			IsCurDir = false;
 		}
-		else 	{
+		else {
 			Cur = Cur.erase(0, 4);
 			IsCurDir = true;
 		}
 	}
+}
+
+void Resize(HWND hWnd) {
+	RECT rcClient;
+
+	GetClientRect(hWnd, &rcClient);
+
+	SetWindowPos(hStaticDirControl, NULL, 0, 0, rcClient.right - 80, 20, SWP_NOZORDER);
+	SetWindowPos(hButton, NULL, rcClient.right - 80, 0, 80, 20, SWP_NOZORDER);
+	SetWindowPos(hListboxControl, NULL, 0, 20, rcClient.right, rcClient.bottom - 50, SWP_NOZORDER);
+	SetWindowPos(hEditControl, NULL, 5, rcClient.bottom - 25, rcClient.right, 20, SWP_NOZORDER);
 }
