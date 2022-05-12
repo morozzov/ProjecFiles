@@ -45,6 +45,8 @@ LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 						ItemSize = (int)SendMessage(hListboxControl, LB_GETTEXTLEN, (WPARAM)ItemIndex, 0);
 						GetCur(ItemIndex, ItemSize);
 
+						if (IsCurDir) 	{
+
 						if (wcscmp(Cur.c_str(), L".") == 0) {
 							CurrentPath = CurrentDir.substr(0, 4);
 						}
@@ -60,6 +62,8 @@ LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 						}
 
 						GetFiles(CurrentPath);
+						}
+
 					}
 				}
 				catch (const std::exception&) {
@@ -196,13 +200,14 @@ void MainWndAddWidgets(HWND hWnd) {
 
 	CreateWindowA("button", "Refresh", WS_VISIBLE | WS_CHILD | ES_CENTER, rcClient.right - 80, 0, 80, 20, hWnd, (HMENU)OnButtonReadClicked, NULL, NULL);
 
-	hListboxControl = CreateWindowA("listbox", "Edit text", WS_VISIBLE | LBS_NOTIFY | WS_CHILD | WS_VSCROLL, 20, 20, rcClient.right - 20, rcClient.bottom - 50, hWnd, (HMENU)OnListboxClicked, NULL, NULL);
-	hListbox1Control = CreateWindowA("listbox", "Edit text", WS_VISIBLE | LBS_NOTIFY | WS_CHILD | WS_VSCROLL, 0, 20, 20, rcClient.bottom - 50, hWnd, (HMENU)OnListboxClicked, NULL, NULL);
+	hListboxControl = CreateWindowA("listbox", "Edit text", WS_VISIBLE | LBS_NOTIFY | WS_CHILD | WS_VSCROLL, 0, 20, rcClient.right, rcClient.bottom - 50, hWnd, (HMENU)OnListboxClicked, NULL, NULL);
 
 	hEditControl = CreateWindowA("edit", "file.txt", WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_VSCROLL, 5, rcClient.bottom - 25, rcClient.right, 20, hWnd, NULL, NULL, NULL);
 }
 
 void GetFiles(std::wstring path) {
+
+
 	SendMessage(hListboxControl, LB_RESETCONTENT, 0, 0);
 	SendMessage(hListbox1Control, LB_RESETCONTENT, 0, 0);
 
@@ -212,15 +217,18 @@ void GetFiles(std::wstring path) {
 
 	WIN32_FIND_DATA findFileData{};
 	auto handle = FindFirstFile((path + L"*").c_str(), &findFileData);
+	std::wstring fN;
 
 	do {
 		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-			SendMessage(hListboxControl, LB_ADDSTRING, 0, (LPARAM)(findFileData.cFileName));
-			SendMessage(hListbox1Control, LB_ADDSTRING, 0, (LPARAM)L"-");
+			fN = L"[_] ";
+			fN += findFileData.cFileName;
+			SendMessage(hListboxControl, LB_ADDSTRING, 0, (LPARAM)fN.c_str());
 		}
 		else {
-			SendMessage(hListboxControl, LB_ADDSTRING, 0, (LPARAM)(findFileData.cFileName));
-			SendMessage(hListbox1Control, LB_ADDSTRING, 0, (LPARAM)L"");
+			fN = L"     ";
+			fN += findFileData.cFileName;
+			SendMessage(hListboxControl, LB_ADDSTRING, 0, (LPARAM)(fN.c_str()));
 		}
 
 	} while (FindNextFile(handle, &findFileData));
@@ -308,5 +316,13 @@ void GetCur(int curIndex, int length) {
 			(WPARAM)curIndex,
 			(LPARAM)reinterpret_cast<LPCWSTR>(&buf[0]));
 		Cur = &buf[0];
+		if (Cur[0] == ' ') {
+			Cur = Cur.erase(0, 5);
+			IsCurDir = false;
+		}
+		else 	{
+			Cur = Cur.erase(0, 4);
+			IsCurDir = true;
+		}
 	}
 }

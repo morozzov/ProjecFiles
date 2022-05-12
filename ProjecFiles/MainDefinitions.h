@@ -15,6 +15,8 @@
 int ItemIndex;
 int ItemSize;
 
+bool IsCurDir;
+
 std::wstring CurrentDir;
 std::wstring CurrentPath;
 std::wstring Cur;
