@@ -1,8 +1,5 @@
-#include <Windows.h>
-#include <string>
-#include "resource.h"
+//#include <Windows.h>
 #include "MainDefinitions.h"
-#include <vector>
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow) {
 	WNDCLASS MainClass = NewWindowClass((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(hInst, MAKEINTRESOURCE(IDI_ICON1)), L"MainWndClass", MainProcedure);
@@ -129,17 +126,35 @@ LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 		case OnCClicked:
 			CurrentDir = L"C://";
-
 			GetFiles(CurrentDir);
 			break;
-
 		case OnDClicked:
 			CurrentDir = L"D://";
-
+			GetFiles(CurrentDir);
+			break;
+		case OnEClicked:
+			CurrentDir = L"E://";
+			GetFiles(CurrentDir);
+			break;
+		case OnFClicked:
+			CurrentDir = L"F://";
+			GetFiles(CurrentDir);
+			break;
+		case OnGClicked:
+			CurrentDir = L"G://";
+			GetFiles(CurrentDir);
+			break;
+		case OnHClicked:
+			CurrentDir = L"H://";
+			GetFiles(CurrentDir);
+			break;
+		case OnIClicked:
+			CurrentDir = L"I://";
 			GetFiles(CurrentDir);
 			break;
 
 		case OnButtonReadClicked:
+			MainWndAddMenus(hWnd);
 			GetFiles(CurrentDir);
 			break;
 
@@ -177,8 +192,47 @@ void MainWndAddMenus(HWND hWnd) {
 	HMENU Root1Menu = CreateMenu();
 	HMENU Sub1Menu = CreateMenu();
 
-	AppendMenu(Sub1Menu, MF_STRING, OnCClicked, L"Open C: directory");
-	AppendMenu(Sub1Menu, MF_STRING, OnDClicked, L"Open D: directory");
+	int n;
+	DWORD dr = GetLogicalDrives();
+	UINT_PTR comm;
+
+	for (int i = 0; i < 26; i++) {
+		n = ((dr >> i) & 0x00000001);
+		if (n == 1) {
+			std::wstring disk = L"Open ";
+			disk += char(65 + i);
+			disk += L": directory";
+
+			switch (char(65 + i)) 	{
+			case 'C':
+				comm = OnCClicked;
+				break;
+			case 'D':
+				comm = OnDClicked;
+				break;
+			case 'E':
+				comm = OnEClicked;
+				break;
+			case 'F':
+				comm = OnFClicked;
+				break;
+			case 'G':
+				comm = OnGClicked;
+				break;
+			case 'H':
+				comm = OnHClicked;
+				break;
+			case 'I':
+				comm = OnIClicked;
+				break;
+			default:
+				comm = OnCClicked;
+				break;
+			}
+			AppendMenu(Sub1Menu, MF_STRING, comm, disk.c_str());
+		}
+	}
+
 	AppendMenu(Sub1Menu, MF_SEPARATOR, NULL, NULL);
 	AppendMenu(Sub1Menu, MF_STRING, OnCreateDirectoryClicked, L"Create new directory");
 	AppendMenu(Sub1Menu, MF_STRING, OnDeleteDirectoryClicked, L"Delete selected directory");
@@ -212,8 +266,6 @@ void MainWndAddWidgets(HWND hWnd) {
 }
 
 void GetFiles(std::wstring path) {
-
-
 	SendMessage(hListboxControl, LB_RESETCONTENT, 0, 0);
 	SendMessage(hListbox1Control, LB_RESETCONTENT, 0, 0);
 
@@ -243,7 +295,6 @@ void GetFiles(std::wstring path) {
 };
 
 void CreateDir(HWND hWnd) {
-
 	std::wstring name = CurrentDir + FileName;
 
 	CreateDirectory(name.c_str(), NULL);
@@ -252,7 +303,6 @@ void CreateDir(HWND hWnd) {
 }
 
 void DeleteDir(HWND hWnd) {
-
 	std::wstring name = CurrentDir + Cur;
 
 	RemoveDirectory(name.c_str());
@@ -293,7 +343,6 @@ int CreateFile(HWND hWnd) {
 }
 
 void DeleteFile(HWND hWnd) {
-
 	std::wstring name = CurrentDir + Cur;
 
 	DeleteFile(name.c_str());

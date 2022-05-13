@@ -1,4 +1,8 @@
 #pragma once
+#include <wtypes.h>
+#include <string>
+#include <vector>
+#include "resource.h"
 
 #define OnHelpClicked	1
 #define OnAboutClicked	2
@@ -10,7 +14,12 @@
 #define OnDeleteDirectoryClicked	9
 #define OnCClicked	10
 #define OnDClicked	11
-#define OnListboxClicked 12
+#define OnEClicked	12
+#define OnFClicked	13
+#define OnGClicked	14
+#define OnHClicked	15
+#define OnIClicked	16
+#define OnListboxClicked 17
 
 int ItemIndex;
 int ItemSize;
