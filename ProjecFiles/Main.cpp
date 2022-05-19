@@ -163,7 +163,7 @@ LRESULT CALLBACK MainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		break;
 
 	case WM_CREATE:
-		CurrentDir = L"D://";
+		CurrentDir = L"C://";
 
 		MainWndAddMenus(hWnd);
 		MainWndAddWidgets(hWnd);

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "resource.h"
+#include <fileapi.h>
 
 #define OnHelpClicked	1
 #define OnAboutClicked	2
